@@ -16,6 +16,7 @@ public class Biblioteca {
 		livros.add(livro);
 		System.out.println("Livro adicionado à biblioteca: " + livro.getTitulo());
 	}
+	
 
 	public void removerLivro(Livro livro) {
 		if (livros.remove(livro)) {
@@ -23,6 +24,16 @@ public class Biblioteca {
 		} else {
 			System.out.println("Livro não encontrado na biblioteca: " + livro.getTitulo());
 		}
+	}
+	
+	public Livro pesquisarLivro(String titulo) {
+		for (Livro livro : livros) {
+			if (livro.getTitulo().equalsIgnoreCase(titulo)) {
+				return livro;
+			}
+		}
+		
+		return null;
 	}
 
 	public void exibirLivrosDisponiveis() {

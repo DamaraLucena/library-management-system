@@ -19,7 +19,7 @@ public class Usuario {
 		this.endereço = endereco;
 		this.listaLivrosEmprestados = new ArrayList<Livro>();
 	}
-
+	
 	public String getNome() {
 		return nome;
 	}
@@ -66,6 +66,7 @@ public class Usuario {
 	}
 
 	public void solicitarEmprestimo(Livro livro) {
+		
 		if (livro.isDisponibilidade()) {
 			listaLivrosEmprestados.add(livro);
 			livro.setDisponibilidade(false);
@@ -79,9 +80,27 @@ public class Usuario {
 		if (listaLivrosEmprestados.contains(livro)) {
 			listaLivrosEmprestados.remove(livro);
 			livro.setDisponibilidade(true);
-			System.out.println("Devolução realizada com sucesso!");
 		} else {
 			System.out.println("Você não possui este livro na sua lista de emprestimo!.");
+		}
+	}
+	
+	public Livro buscarLivroEmprestado(String titulo) {
+		for (Livro livro : listaLivrosEmprestados) {
+			if (livro.getTitulo().equalsIgnoreCase(titulo)) {
+				return livro;
+			}
+		}
+		
+		return null;
+	}
+	
+	public void exibirLivrosEmprestados() {
+		System.out.println("Livros emprestados: ");
+		System.out.println("");
+		for (Livro livro : listaLivrosEmprestados) {
+			System.out.println("Título: " + livro.getTitulo());
+			System.out.println("Autor: " + livro.getAutor());
 		}
 	}
 

@@ -1,14 +1,18 @@
 package Livro;
 
+import java.util.Date;
+
 public class Livro {
 	private String titulo;
 	private String autor;
 	private boolean disponibilidade;
+	private Date dataEmprestimo;
 
 	public Livro(String titulo, String autor) {
 		this.titulo = titulo;
 		this.autor = autor;
 		this.disponibilidade = true;
+		this.dataEmprestimo = null;
 	}
 
 	public String getTitulo() {
@@ -33,6 +37,15 @@ public class Livro {
 
 	public void setDisponibilidade(boolean disponibilidade) {
 		this.disponibilidade = disponibilidade;
+	}
+	
+	
+	public Date getDataEmprestimo() {
+		return dataEmprestimo;
+	}
+
+	public void setDataEmprestimo(Date dataEmprestimo) {
+		this.dataEmprestimo = dataEmprestimo;
 	}
 
 	public void obterInformacaoLivros() {

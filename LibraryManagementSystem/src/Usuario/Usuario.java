@@ -1,6 +1,7 @@
 package Usuario;
 import Livro.Livro;
 
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,7 @@ public class Usuario {
 		if (livro.isDisponibilidade()) {
 			listaLivrosEmprestados.add(livro);
 			livro.setDisponibilidade(false);
+			livro.setDataEmprestimo(new Date());
 			System.out.println("Empréstimo realizado!");
 		} else {
 			System.out.println("Livro indisponível.");
@@ -80,6 +82,7 @@ public class Usuario {
 		if (listaLivrosEmprestados.contains(livro)) {
 			listaLivrosEmprestados.remove(livro);
 			livro.setDisponibilidade(true);
+			livro.setDataEmprestimo(null);
 		} else {
 			System.out.println("Você não possui este livro na sua lista de emprestimo!.");
 		}

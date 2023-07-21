@@ -1,25 +1,39 @@
 package com.github.damaralucena.Usuario;
-import java.util.Date;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.damaralucena.Livro.Livro;
 
 public class Usuario {
+	private int id;
 	private String nome;
 	private String cpf;
 	private String senha;
 	private String endereço;
 	private List<Livro> listaLivrosEmprestados;
 	
-	public Usuario(String nome, String cpf, String senha, String endereco) {
+	public Usuario() {
+		
+	}
+	
+	public Usuario(int id, String nome, String cpf, String senha, String endereco) {
+		this.id = id;
 		this.nome = nome;
 		this.cpf = cpf;
 		this.senha = senha;
 		this.endereço = endereco;
-		this.listaLivrosEmprestados = new ArrayList<Livro>();
+		this.listaLivrosEmprestados = new ArrayList<>();
 	}
 	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public String getNome() {
 		return nome;
 	}
@@ -56,54 +70,12 @@ public class Usuario {
 		return listaLivrosEmprestados;
 	}
 	
-	public void criarUsuario(String nome, String senha, String endereco, String cpf) {
-		this.nome = nome;
-		this.senha = senha;
-		this.cpf = cpf;
-		this.endereço = endereco;
-		System.out.println("Usuário criador com sucesso!");
-
-	}
-
 	public void solicitarEmprestimo(Livro livro) {
-		
-		if (livro.isDisponibilidade()) {
-			listaLivrosEmprestados.add(livro);
-			livro.setDisponibilidade(false);
-			livro.setDataEmprestimo(new Date());
-			System.out.println("Empréstimo realizado!");
-		} else {
-			System.out.println("Livro indisponível.");
-		}
-	}
+        listaLivrosEmprestados.add(livro);
+    }
 
-	public void devolverLivro(Livro livro) {
-		if (listaLivrosEmprestados.contains(livro)) {
-			listaLivrosEmprestados.remove(livro);
-			livro.setDisponibilidade(true);
-			livro.setDataEmprestimo(null);
-		} else {
-			System.out.println("Você não possui este livro na sua lista de emprestimo!.");
-		}
-	}
-	
-	public Livro buscarLivroEmprestado(String titulo) {
-		for (Livro livro : listaLivrosEmprestados) {
-			if (livro.getTitulo().equalsIgnoreCase(titulo)) {
-				return livro;
-			}
-		}
-		
-		return null;
-	}
-	
-	public void exibirLivrosEmprestados() {
-		System.out.println("Livros emprestados: ");
-		System.out.println("");
-		for (Livro livro : listaLivrosEmprestados) {
-			System.out.println("Título: " + livro.getTitulo());
-			System.out.println("Autor: " + livro.getAutor());
-		}
-	}
+    public void devolverLivro(Livro livro) {
+        listaLivrosEmprestados.remove(livro);
+    }
 
 }

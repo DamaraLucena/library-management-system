@@ -3,18 +3,37 @@ package com.github.damaralucena.Livro;
 import java.util.Date;
 
 public class Livro {
+	private int id;
+
 	private String titulo;
 	private String autor;
 	private boolean disponibilidade;
 	private Date dataEmprestimo;
+	
+	public Livro() {
+		
+	}
 
-	public Livro(String titulo, String autor) {
+	public Livro(int id,String titulo, String autor) {
+		this.id = id;
 		this.titulo = titulo;
 		this.autor = autor;
 		this.disponibilidade = true;
 		this.dataEmprestimo = null;
 	}
 
+	public Livro(String titulo2, String autor2, boolean b) {
+		// TODO Auto-generated constructor stub
+	}
+
+	public int getId() {
+		return id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
 	public String getTitulo() {
 		return titulo;
 	}
@@ -48,17 +67,5 @@ public class Livro {
 		this.dataEmprestimo = dataEmprestimo;
 	}
 
-	public void obterInformacaoLivros() {
-		System.out.println("Título: " + this.titulo);
-		System.out.println("Autor: " + this.autor);
-		System.out.println("Disponibilidade: " + (disponibilidade ? "Disponível" : "Indisponível"));
-	}
-
-	public void alterarStatusDisponibilidade(boolean disponibilidade) {
-		this.disponibilidade = disponibilidade;
-
-		System.out.println(
-				"Status de disponibilidade alterado para: " + (disponibilidade ? "Disponível" : "Indisponível"));
-	}
 
 }

@@ -57,16 +57,26 @@ A classe **`Livro`** possui os seguintes métodos principais:
 
 ### **Classe Biblioteca**
 
-A classe **`Biblioteca`** representa a biblioteca e o gerenciamento dos livros disponíveis. Ela possui o seguinte atributo:
+Essa classe é responsável por gerenciar os livros e usuários da biblioteca, além de fazer a interação com o banco de dados PostgreSQL. Ela possui os seguintes métodos:
 
-- **`livros`**: Uma lista de livros na biblioteca.
+- `conectar():` Esse método é responsável por estabelecer a conexão com o banco de dados PostgreSQL. Ele utiliza a URL, usuário e senha fornecidos para conectar-se ao banco.
+- `criarTabelas():` Esse método é responsável por criar as tabelas "livros", "usuarios" e "emprestimos" no banco de dados, caso ainda não existam.
+- `desconectar():` Esse método é responsável por fechar a conexão com o banco de dados quando não for mais necessária.
+- `adicionarLivro():` Esse método permite adicionar um novo livro à biblioteca. Ele solicita ao usuário as informações do livro (título e autor) e adiciona-o ao banco de dados.
+- `removerLivro():` Esse método permite remover um livro da biblioteca. Ele solicita ao usuário o ID do livro a ser removido e realiza a exclusão do registro no banco de dados.
+- `pesquisarLivro():` Esse método permite pesquisar um livro na biblioteca por título ou autor. Ele solicita ao usuário uma palavra-chave para a pesquisa e retorna os livros que correspondem à busca.
+- `exibirLivrosDisponiveis():` Esse método exibe todos os livros disponíveis na biblioteca (ou seja, com o status de "disponível" igual a true).
+- `adicionarUsuario():` Esse método permite adicionar um novo usuário à biblioteca. Ele solicita ao usuário o nome e a senha do novo usuário e o adiciona ao banco de dados.
+- `pesquisarUsuario()`: Esse método permite pesquisar um usuário na biblioteca por nome. Ele solicita ao usuário um nome para a pesquisa e retorna os usuários que correspondem à busca.
+- `atualizarUsuario()`: Esse método permite atualizar o nome de um usuário na biblioteca. Ele solicita ao usuário o ID do usuário a ser atualizado e o novo nome, e realiza a atualização no banco de dados.
+- `atualizarLivro():` Esse método permite atualizar o título e/ou autor de um livro na biblioteca. Ele solicita ao usuário o ID do livro a ser atualizado e as novas informações, e realiza a atualização no banco de dados.
+- `emprestarLivro():` Esse método permite emprestar um livro da biblioteca. Ele solicita ao usuário o ID do livro e do usuário para o empréstimo e realiza a atualização do status do livro para "indisponível" e registra o empréstimo na tabela "emprestimos".
+- `devolverLivro():` Esse método permite devolver um livro emprestado à biblioteca. Ele solicita ao usuário o ID do livro a ser devolvido e realiza a atualização do status do livro para "disponível".
+ 
+## **Banco de Dados**
 
-A classe **`Biblioteca`** possui os seguintes métodos principais:
+O código faz uso do banco de dados PostgreSQL para armazenar as informações dos livros, usuários e empréstimos. As tabelas "livros" e "usuarios" são criadas com os campos correspondentes a cada classe, e a tabela "emprestimos" é criada para armazenar os registros de empréstimos com os campos "id_livro", "id_usuario" e "data_emprestimo".
 
-- **`adicionarLivro(livro: Livro)`**: Adiciona um livro à biblioteca.
-- **`removerLivro(livro: Livro)`**: Remove um livro da biblioteca.
-- **`pesquisarLivro(titulo: String)`**: Pesquisa um livro na biblioteca pelo título.
-- **`exibirLivrosDisponiveis()`**: Exibe os livros disponíveis na biblioteca.
 
 ## **Interação com o Usuário**
 

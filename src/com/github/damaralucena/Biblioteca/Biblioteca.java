@@ -1,170 +1,229 @@
 package com.github.damaralucena.Biblioteca;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.Scanner;
 
 import com.github.damaralucena.DataBase.DataBaseConfig;
-import com.github.damaralucena.Livro.Livro;
-import com.github.damaralucena.Usuario.Usuario;
+
 
 public class Biblioteca {
 	private Connection connection;
 
-	public Biblioteca() {
+	public void ConectarBiblioteca() {
 		try {
 			connection = DataBaseConfig.getConnection();
+			System.out.println("Conexão com o banco de dados estabelecida!");
 		} catch (SQLException e) {
 			System.out.println("Erro ao conectar ao banco de dados: " + e.getMessage());
 		}
 	}
 	
-	public void adicionarUsuario(Usuario usuario) {
+	public void desconectarBiblioteca() {
         try {
-            String sql = "INSERT INTO usuarios (nome, senha) VALUES (?, ?)";
-            PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getSenha());
-            stmt.executeUpdate();
-
-            ResultSet generatedKeys = stmt.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                int usuarioId = generatedKeys.getInt(1);
-                usuario.setId(usuarioId);
-            }
-
-            System.out.println("Usuário cadastrado com sucesso no banco de dados.");
-            stmt.close();
+            connection.close();
+            System.out.println("Conexão com o banco de dados encerrada!");
         } catch (SQLException e) {
-            System.err.println("Erro ao adicionar usuário ao banco de dados: " + e.getMessage());
+            System.out.println("Erro ao desconectar do banco de dados: " + e.getMessage());
         }
     }
 	
-	public void atualizarUsuario(Usuario usuario) {
-        try {
-            String sql = "UPDATE usuarios SET nome = ?, senha = ? WHERE id = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getSenha());
-            stmt.setInt(3, usuario.getId());
-            stmt.executeUpdate();
-            System.out.println("Usuário atualizado com sucesso no banco de dados.");
-            stmt.close();
-        } catch (SQLException e) {
-            System.err.println("Erro ao atualizar usuário no banco de dados: " + e.getMessage());
-        }
-    }
-	
-	public Usuario pesquisarUsuario(int usuarioId) {
-        Usuario usuario = null;
-        try {
-            String sql = "SELECT * FROM usuarios WHERE id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.setInt(1, usuarioId);
-            ResultSet resultSet = preparedStatement.executeQuery();
+	public void adicionarLivro() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o título do livro:");
+        String titulo = scanner.nextLine();
+        System.out.println("Informe o autor do livro:");
+        String autor = scanner.nextLine();
+        System.out.println("O livro está disponível para empréstimo? (true/false)");
+        boolean disponivel = scanner.nextBoolean();
 
-            if (resultSet.next()) {
-                String nome = resultSet.getString("nome");
-                String senha = resultSet.getString("senha");
-                String cpf = resultSet.getString("cpf");
-                String endereco = resultSet.getString("endereco");
-                usuario = new Usuario(usuarioId, nome, senha, cpf, endereco);
+        try {
+            PreparedStatement stmt = connection.prepareStatement("INSERT INTO livros (titulo, autor, disponivel) VALUES (?, ?, ?)");
+            stmt.setString(1, titulo);
+            stmt.setString(2, autor);
+            stmt.setBoolean(3, disponivel);
+
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Livro adicionado com sucesso!");
             } else {
-                System.out.println("Usuário com ID " + usuarioId + " não encontrado.");
+                System.out.println("Não foi possível adicionar o livro.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao adicionar livro: " + e.getMessage());
+        }
+    }
+
+    public void removerLivro() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o ID do livro que deseja remover:");
+        int id = scanner.nextInt();
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement("DELETE FROM livros WHERE id = ?");
+            stmt.setInt(1, id);
+
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Livro removido com sucesso!");
+            } else {
+                System.out.println("Não foi possível remover o livro.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao remover livro: " + e.getMessage());
+        }
+    }
+
+    public void pesquisarLivro() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o título ou autor do livro que deseja pesquisar:");
+        String termo = scanner.nextLine();
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM livros WHERE titulo ILIKE ? OR autor ILIKE ?");
+            stmt.setString(1, "%" + termo + "%");
+            stmt.setString(2, "%" + termo + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String titulo = rs.getString("titulo");
+                String autor = rs.getString("autor");
+                boolean disponivel = rs.getBoolean("disponivel");
+                System.out.println("ID: " + id + ", Título: " + titulo + ", Autor: " + autor + ", Disponível: " + disponivel);
             }
 
-            resultSet.close();
-            preparedStatement.close();
+            if (!rs.next()) {
+                System.out.println("Nenhum livro encontrado com o termo informado.");
+            }
         } catch (SQLException e) {
-            System.err.println("Erro ao pesquisar usuário no banco de dados: " + e.getMessage());
+            System.out.println("Erro ao pesquisar livro: " + e.getMessage());
         }
-        return usuario;
     }
 
-	public void adicionarLivro(Livro livro) {
-		try {
-			String sql = "INSERT INTO livros (titulo, autor, disponivel) VALUES (?, ?, ?)";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setString(1, livro.getTitulo());
-			statement.setString(2, livro.getAutor());
-			statement.setBoolean(3, livro.isDisponibilidade());
-			statement.executeUpdate();
-			statement.close();
-		} catch (SQLException e) {
-			System.out.println("Erro ao adicionar livro: " + e.getMessage());
-		}
-	}
-	
-	public void atualizarLivro(Livro livro) {
+    public void exibirLivrosDisponiveis() {
         try {
-            String sql = "UPDATE livros SET titulo = ?, autor = ?, disponivel = ? WHERE id = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, livro.getTitulo());
-            stmt.setString(2, livro.getAutor());
-            stmt.setBoolean(3, livro.isDisponibilidade());
-            stmt.setInt(4, livro.getId());
-            stmt.executeUpdate();
-            System.out.println("Livro atualizado com sucesso no banco de dados.");
-            stmt.close();
+            Statement stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM livros WHERE disponivel = true");
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String titulo = rs.getString("titulo");
+                String autor = rs.getString("autor");
+                System.out.println("ID: " + id + ", Título: " + titulo + ", Autor: " + autor);
+            }
+
+            if (!rs.next()) {
+                System.out.println("Nenhum livro disponível no momento.");
+            }
         } catch (SQLException e) {
-            System.err.println("Erro ao atualizar livro no banco de dados: " + e.getMessage());
+            System.out.println("Erro ao exibir livros disponíveis: " + e.getMessage());
         }
     }
 
-	public void removerLivro(int livroId) {
-		try {
-			String sql = "DELETE FROM livros WHERE id = ?";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, livroId);
-			statement.executeUpdate();
-			statement.close();
-		} catch (SQLException e) {
-			System.out.println("Erro ao remover livro: " + e.getMessage());
-		}
-	}
+    public void adicionarUsuario() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o nome do usuário:");
+        String nome = scanner.nextLine();
+        System.out.println("Informe a senha do usuário:");
+        String senha = scanner.nextLine();
+        System.out.println("Informe o cpf do usuário: ");
+        String cpf = scanner.nextLine();
+        System.out.println("Informe o endereco do usuário: ");
+        String endereco = scanner.nextLine();
+        try {
+            PreparedStatement stmt = connection.prepareStatement("INSERT INTO usuarios (nome, senha, cpf, endereco) VALUES (?, ?, ?, ?)");
+            stmt.setString(1, nome);
+            stmt.setString(2, senha);
+            stmt.setString(3, cpf);
+            stmt.setString(4, endereco);
 
-	public Livro pesquisarLivro(int livroId) {
-		Livro livro = null;
-		try {
-			String sql = "SELECT * FROM livros WHERE id = ?";
-			PreparedStatement statement = connection.prepareStatement(sql);
-			statement.setInt(1, livroId);
-			ResultSet result = statement.executeQuery();
-			if (result.next()) {
-				livro = new Livro();
-				livro.setId(result.getInt("id"));
-				livro.setTitulo(result.getString("titulo"));
-				livro.setAutor(result.getString("autor"));
-				livro.setDisponibilidade(result.getBoolean("disponivel"));
-			}
-			statement.close();
-			result.close();
-		} catch (SQLException e) {
-			System.out.println("Erro ao pesquisar livro: " + e.getMessage());
-		}
-		return livro;
-	}
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Usuário adicionado com sucesso!");
+            } else {
+                System.out.println("Não foi possível adicionar o usuário.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao adicionar usuário: " + e.getMessage());
+        }
+    }
 
-	public List<Livro> exibirLivrosDisponiveis() {
-		List<Livro> livros = new ArrayList<>();
-		try {
-			String sql = "SELECT * FROM livros WHERE disponivel = true";
-			Statement statement = connection.createStatement();
-			ResultSet result = statement.executeQuery(sql);
-			while (result.next()) {
-				Livro livro = new Livro();
-				livro.setId(result.getInt("id"));
-				livro.setTitulo(result.getString("titulo"));
-				livro.setAutor(result.getString("autor"));
-				livro.setDisponibilidade(result.getBoolean("disponivel"));
-				livros.add(livro);
-			}
-			statement.close();
-			result.close();
-		} catch (SQLException e) {
-			System.out.println("Erro ao exibir livros disponíveis: " + e.getMessage());
-		}
-		return livros;
-	}
+    public void pesquisarUsuario() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o nome do usuário que deseja pesquisar:");
+        String nome = scanner.nextLine();
 
+        try {
+            PreparedStatement stmt = connection.prepareStatement("SELECT * FROM usuarios WHERE nome ILIKE ?");
+            stmt.setString(1, "%" + nome + "%");
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String nomeUsuario = rs.getString("nome");
+                System.out.println("ID: " + id + ", Nome: " + nomeUsuario);
+            }
+
+            if (!rs.next()) {
+                System.out.println("Nenhum usuário encontrado com o nome informado.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar usuário: " + e.getMessage());
+        }
+    }
+
+    public void atualizarUsuario() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o ID do usuário que deseja atualizar:");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Informe o novo nome do usuário:");
+        String novoNome = scanner.nextLine();
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement("UPDATE usuarios SET nome = ? WHERE id = ?");
+            stmt.setString(1, novoNome);
+            stmt.setInt(2, id);
+            
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Usuário atualizado com sucesso!");
+            } else {
+                System.out.println("Não foi possível atualizar o usuário. Verifique se o ID informado está correto.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar usuário: " + e.getMessage());
+        }
+    }
+
+    public void atualizarLivro() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o ID do livro que deseja atualizar:");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Informe o novo título do livro:");
+        String novoTitulo = scanner.nextLine();
+        System.out.println("Informe o novo autor do livro:");
+        String novoAutor = scanner.nextLine();
+        System.out.println("O livro está disponível para empréstimo? (true/false)");
+        boolean novoDisponivel = scanner.nextBoolean();
+
+        try {
+            PreparedStatement stmt = connection.prepareStatement("UPDATE livros SET titulo = ?, autor = ?, disponivel = ? WHERE id = ?");
+            stmt.setString(1, novoTitulo);
+            stmt.setString(2, novoAutor);
+            stmt.setBoolean(3, novoDisponivel);
+            stmt.setInt(4, id);
+
+            int linhasAfetadas = stmt.executeUpdate();
+            if (linhasAfetadas > 0) {
+                System.out.println("Livro atualizado com sucesso!");
+            } else {
+                System.out.println("Não foi possível atualizar o livro. Verifique se o ID informado está correto.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar livro: " + e.getMessage());
+        }
+    }
 }

@@ -23,7 +23,6 @@ public class Livro {
 	}
 
 	public Livro(String titulo2, String autor2, boolean b) {
-		// TODO Auto-generated constructor stub
 	}
 
 	public int getId() {

@@ -226,4 +226,70 @@ public class Biblioteca {
             System.out.println("Erro ao atualizar livro: " + e.getMessage());
         }
     }
+    
+    public void emprestarLivro() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o ID do livro que deseja emprestar:");
+        int idLivro = scanner.nextInt();
+        scanner.nextLine();
+        System.out.println("Informe o ID do usuário que deseja emprestar o livro:");
+        int idUsuario = scanner.nextInt();
+
+        try {
+            PreparedStatement stmtVerificar = connection.prepareStatement("SELECT disponivel FROM livros WHERE id = ?");
+            stmtVerificar.setInt(1, idLivro);
+            ResultSet rs = stmtVerificar.executeQuery();
+            if (rs.next()) {
+                boolean disponivel = rs.getBoolean("disponivel");
+                if (disponivel) {
+                   
+                    PreparedStatement stmtEmprestar = connection.prepareStatement("UPDATE livros SET disponivel = false WHERE id = ?");
+                    stmtEmprestar.setInt(1, idLivro);
+                    stmtEmprestar.executeUpdate();
+                    
+                    PreparedStatement stmtRegistro = connection.prepareStatement("INSERT INTO emprestimos (id_livro, id_usuario, data_emprestimo) VALUES (?, ?, CURRENT_DATE)");
+                    stmtRegistro.setInt(1, idLivro);
+                    stmtRegistro.setInt(2, idUsuario);
+                    stmtRegistro.executeUpdate();
+
+                    System.out.println("Livro emprestado com sucesso!");
+                } else {
+                    System.out.println("O livro não está disponível para empréstimo.");
+                }
+            } else {
+                System.out.println("Livro não encontrado.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao emprestar livro: " + e.getMessage());
+        }
+    }
+
+    public void devolverLivro() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Informe o ID do livro que deseja devolver:");
+        int idLivro = scanner.nextInt();
+
+        try {
+            
+            PreparedStatement stmtVerificar = connection.prepareStatement("SELECT disponivel FROM livros WHERE id = ?");
+            stmtVerificar.setInt(1, idLivro);
+            ResultSet rs = stmtVerificar.executeQuery();
+            if (rs.next()) {
+                boolean disponivel = rs.getBoolean("disponivel");
+                if (!disponivel) {
+                    PreparedStatement stmtDevolver = connection.prepareStatement("UPDATE livros SET disponivel = true WHERE id = ?");
+                    stmtDevolver.setInt(1, idLivro);
+                    stmtDevolver.executeUpdate();
+
+                    System.out.println("Livro devolvido com sucesso!");
+                } else {
+                    System.out.println("O livro não está emprestado.");
+                }
+            } else {
+                System.out.println("Livro não encontrado.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao devolver livro: " + e.getMessage());
+        }
+    }
 }

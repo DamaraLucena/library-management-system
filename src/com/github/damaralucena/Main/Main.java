@@ -22,6 +22,8 @@ public class Main {
 	            System.out.println("6. Pesquisar Usuário");
 	            System.out.println("7. Atualizar Usuário");
 	            System.out.println("8. Atualizar Livro");
+	            System.out.println("9. Emprestimo de Livro");
+	            System.out.println("10. Devolução de livro emprestado");
 	            System.out.println("0. Sair");
 	            System.out.print("Escolha uma opção: ");
 	            opcao = scanner.nextInt();
@@ -51,6 +53,11 @@ public class Main {
 	                case 8:
 	                    biblioteca.atualizarLivro();
 	                    break;
+	                case 9:
+	                	biblioteca.emprestarLivro();
+	                	break;
+	                case 10:
+	                	biblioteca.devolverLivro();
 	                case 0:
 	                    System.out.println("Encerrando o programa...");
 	                    break;
